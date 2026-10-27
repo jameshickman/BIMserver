@@ -49,6 +49,9 @@ public class GetProjectByUuidDatabaseAction extends BimDatabaseAction<Project> {
 	@Override
 	public Project execute() throws UserException, BimserverLockConflictException, BimserverDatabaseException {
 
+		if (uuid == null) {
+			throw new UserException("Invalid uuid format");
+		}
 		UUID comparisonUUID;
 		try {
 			comparisonUUID = UUID.fromString(uuid);
