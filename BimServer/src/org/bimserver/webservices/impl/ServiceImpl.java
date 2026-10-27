@@ -3068,7 +3068,12 @@ public class ServiceImpl extends GenericServiceImpl implements ServiceInterface 
 		DatabaseSession session = getBimServer().getDatabase().createSession(OperationType.READ_ONLY);
 		try {
 			Revision revision = session.get(roid, OldQuery.getDefault());
-			return getBimServer().getSConverter().convertToSObject(revision.getLastConcreteRevision().getBounds().getMax());
+			Bounds bounds = revision.getLastConcreteRevision().getBounds();
+			if (bounds == null) {
+				// No geometry was generated for this revision
+				return null;
+			}
+			return getBimServer().getSConverter().convertToSObject(bounds.getMax());
 		} catch (Exception e) {
 			return handleException(e);
 		} finally {
@@ -3331,7 +3336,12 @@ public class ServiceImpl extends GenericServiceImpl implements ServiceInterface 
 	public SVector3f getModelMinBounds(Long roid) throws ServerException, UserException {
 		try (DatabaseSession session = getBimServer().getDatabase().createSession(OperationType.READ_ONLY)) {
 			Revision revision = session.get(roid, OldQuery.getDefault());
-			return getBimServer().getSConverter().convertToSObject(revision.getLastConcreteRevision().getBounds().getMin());
+			Bounds bounds = revision.getLastConcreteRevision().getBounds();
+			if (bounds == null) {
+				// No geometry was generated for this revision
+				return null;
+			}
+			return getBimServer().getSConverter().convertToSObject(bounds.getMin());
 		} catch (Exception e) {
 			return handleException(e);
 		}
