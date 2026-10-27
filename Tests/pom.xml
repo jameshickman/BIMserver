@@ -7,6 +7,10 @@
 		<artifactId>parent</artifactId>
 		<version>1.6.1-SNAPSHOT</version>
 	</parent>
+	<properties>
+		<!-- Port for the embedded server; override with -Dbimserver.test.port=... -->
+		<bimserver.test.port>7010</bimserver.test.port>
+	</properties>
 	<build>
 		<sourceDirectory>src</sourceDirectory>
 		<testSourceDirectory>test</testSourceDirectory>
@@ -22,24 +26,37 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<version>3.2.5</version>
 				<configuration>
-					<test>AllTests</test>
+					<!-- Everything here needs the embedded server; it runs under failsafe in "verify" -->
+					<skipTests>true</skipTests>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-failsafe-plugin</artifactId>
+				<configuration>
+					<includes>
+						<include>**/AllTests.java</include>
+					</includes>
+					<systemPropertyVariables>
+						<bimserver.test.port>${bimserver.test.port}</bimserver.test.port>
+					</systemPropertyVariables>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>integration-test</goal>
+							<goal>verify</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
     </plugins>
 	</build>
 	<dependencies>
 		<dependency>
-			<groupId>org.junit.jupiter</groupId>
-			<artifactId>junit-jupiter</artifactId>
-			<version>5.13.4</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
 			<groupId>org.junit.platform</groupId>
 			<artifactId>junit-platform-suite</artifactId>
-			<version>1.13.4</version>
 			<scope>test</scope>
 		</dependency>
 
