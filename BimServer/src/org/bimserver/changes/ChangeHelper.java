@@ -17,11 +17,64 @@ package org.bimserver.changes;
  * along with this program.  If not, see {@literal<http://www.gnu.org/licenses/>}.
  *****************************************************************************/
 
+import java.io.IOException;
+import java.util.Collections;
+
+import org.bimserver.BimserverDatabaseException;
+import org.bimserver.database.queries.QueryObjectProvider;
+import org.bimserver.database.queries.om.Query;
+import org.bimserver.database.queries.om.QueryException;
+import org.bimserver.database.queries.om.QueryPart;
+import org.bimserver.emf.PackageMetaData;
 import org.bimserver.emf.Schema;
+import org.bimserver.shared.HashMapVirtualObject;
 import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EReference;
 
 public class ChangeHelper {
 	public static boolean canBeChanged(EClass eClass) {
 		return Schema.isIfc(eClass.getEPackage());
+	}
+
+	/**
+	 * The object as changed so far in this transaction, or else as it is in the previous revision. Null when it does not exist or was deleted in this transaction.
+	 */
+	public static HashMapVirtualObject getObject(Transaction transaction, PackageMetaData packageMetaData, long oid) throws IOException, QueryException, BimserverDatabaseException {
+		if (transaction.isDeleted(oid)) {
+			return null;
+		}
+		HashMapVirtualObject object = transaction.get(oid);
+		if (object == null) {
+			Query query = new Query(packageMetaData);
+			QueryPart queryPart = query.createQueryPart();
+			queryPart.addOid(oid);
+
+			QueryObjectProvider queryObjectProvider = new QueryObjectProvider(transaction.getDatabaseSession(), transaction.getBimServer(), query, Collections.singleton(transaction.getPreviousRevision().getOid()), packageMetaData);
+			object = queryObjectProvider.next();
+		}
+		return object;
+	}
+
+	/**
+	 * Removes the back-reference to oid that otherOid holds in the inverse or opposite of eReference, if there is one.
+	 */
+	public static void removeOpposite(Transaction transaction, PackageMetaData packageMetaData, EReference eReference, long otherOid, long oid) throws IOException, QueryException, BimserverDatabaseException {
+		EClass otherEClass = transaction.getDatabaseSession().getEClassForOid(otherOid);
+		EReference opposite = packageMetaData.getInverseOrOpposite(otherEClass, eReference);
+		if (opposite == null) {
+			return;
+		}
+		HashMapVirtualObject other = getObject(transaction, packageMetaData, otherOid);
+		if (other == null) {
+			return;
+		}
+		if (opposite.isMany()) {
+			other.removeReference(opposite, oid);
+		} else if (Long.valueOf(oid).equals(other.eGet(opposite))) {
+			other.eUnset(opposite);
+		} else {
+			return;
+		}
+		transaction.updated(other);
 	}
 }

@@ -18,16 +18,13 @@ package org.bimserver.changes;
  *****************************************************************************/
 
 import java.io.IOException;
-import java.util.Collections;
 
 import org.bimserver.BimserverDatabaseException;
 import org.bimserver.database.BimserverLockConflictException;
-import org.bimserver.database.queries.QueryObjectProvider;
-import org.bimserver.database.queries.om.Query;
 import org.bimserver.database.queries.om.QueryException;
-import org.bimserver.database.queries.om.QueryPart;
 import org.bimserver.emf.PackageMetaData;
 import org.bimserver.shared.HashMapVirtualObject;
+import org.bimserver.shared.exceptions.DefaultErrorCode;
 import org.bimserver.shared.exceptions.UserException;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EReference;
@@ -48,15 +45,7 @@ public class AddReferenceChange implements Change {
 	public void execute(Transaction transaction) throws UserException, BimserverLockConflictException, BimserverDatabaseException, IOException, QueryException {
 		PackageMetaData packageMetaData = transaction.getDatabaseSession().getMetaDataManager().getPackageMetaData(transaction.getProject().getSchema());
 
-		HashMapVirtualObject object = transaction.get(oid);
-		if (object == null) {
-			Query query = new Query(packageMetaData);
-			QueryPart queryPart = query.createQueryPart();
-			queryPart.addOid(oid);
-
-			QueryObjectProvider queryObjectProvider = new QueryObjectProvider(transaction.getDatabaseSession(), transaction.getBimServer(), query, Collections.singleton(transaction.getPreviousRevision().getOid()), packageMetaData);
-			object = queryObjectProvider.next();
-		}
+		HashMapVirtualObject object = ChangeHelper.getObject(transaction, packageMetaData, oid);
 		
 		EClass eClass = transaction.getDatabaseSession().getEClassForOid(oid);
 		if (!ChangeHelper.canBeChanged(eClass)) {
@@ -74,22 +63,27 @@ public class AddReferenceChange implements Change {
 		}
 		
 		EClass eClassForOid = transaction.getDatabaseSession().getEClassForOid(referenceOid);
+		EReference inverseOrOpposite = packageMetaData.getInverseOrOpposite(eClassForOid, eReference);
+		HashMapVirtualObject referencedObject = null;
+		if (inverseOrOpposite != null) {
+			referencedObject = ChangeHelper.getObject(transaction, packageMetaData, referenceOid);
+			if (referencedObject == null) {
+				throw new UserException("No object of type \"" + eClassForOid.getName() + "\" with oid " + referenceOid + " found in project with pid " + transaction.getProject().getId());
+			}
+			if (!inverseOrOpposite.isMany()) {
+				Object existing = referencedObject.eGet(inverseOrOpposite);
+				if (existing instanceof Long && (Long) existing != oid) {
+					throw new UserException("Cannot add " + eClassForOid.getName() + " " + referenceOid + " to " + eClass.getName() + "." + referenceName + ", its " + inverseOrOpposite.getName() + " already refers to object " + existing, DefaultErrorCode.SET_REFERENCE_FAILED_OPPOSITE_ALREADY_SET);
+				}
+			}
+		}
+
 		object.addReference(eReference, eClassForOid, referenceOid);
 		transaction.updated(object);
 
-		EReference inverseOrOpposite = packageMetaData.getInverseOrOpposite(eClassForOid, eReference);
-		if (inverseOrOpposite != null) {
-			HashMapVirtualObject referencedObject = transaction.get(referenceOid);
-			if (referencedObject == null) {
-				Query query = new Query(packageMetaData);
-				QueryPart queryPart = query.createQueryPart();
-				queryPart.addOid(referenceOid);
-				
-				QueryObjectProvider queryObjectProvider = new QueryObjectProvider(transaction.getDatabaseSession(), transaction.getBimServer(), query, Collections.singleton(transaction.getPreviousRevision().getOid()), packageMetaData);
-				referencedObject = queryObjectProvider.next();
-			}
+		if (referencedObject != null) {
 			if (inverseOrOpposite.isMany()) {
-				referencedObject.addReference(inverseOrOpposite, eClassForOid, oid);
+				referencedObject.addReference(inverseOrOpposite, eClass, oid);
 			} else {
 				referencedObject.setReference(inverseOrOpposite, oid);
 			}

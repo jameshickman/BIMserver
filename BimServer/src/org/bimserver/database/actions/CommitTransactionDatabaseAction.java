@@ -163,7 +163,7 @@ public class CommitTransactionDatabaseAction extends GenericCheckinDatabaseActio
 				try {
 					change.execute(transaction);
 				} catch (IOException | QueryException e) {
-					e.printStackTrace();
+					throw new BimserverDatabaseException(e);
 				}
 			}
 		}
@@ -173,7 +173,7 @@ public class CommitTransactionDatabaseAction extends GenericCheckinDatabaseActio
 				try {
 					change.execute(transaction);
 				} catch (IOException | QueryException e) {
-					e.printStackTrace();
+					throw new BimserverDatabaseException(e);
 				}
 			}
 		}

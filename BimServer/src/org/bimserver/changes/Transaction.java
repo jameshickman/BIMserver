@@ -90,13 +90,21 @@ public class Transaction {
 	}
 
 	public void updated(HashMapVirtualObject object) {
-		if (!created.containsKey(object.getOid())) {
+		if (!created.containsKey(object.getOid()) && !deleted.containsKey(object.getOid())) {
 			updated.put(object.getOid(), object);
 		}
 	}
-	
+
 	public void deleted(HashMapVirtualObject object) {
-		deleted.put(object.getOid(), object);
+		// An object may only be written once per revision, so a delete supersedes earlier updates
+		updated.remove(object.getOid());
+		if (created.remove(object.getOid()) == null) {
+			deleted.put(object.getOid(), object);
+		}
+	}
+
+	public boolean isDeleted(long oid) {
+		return deleted.containsKey(oid);
 	}
 	
 	public Collection<HashMapVirtualObject> getDeleted() {

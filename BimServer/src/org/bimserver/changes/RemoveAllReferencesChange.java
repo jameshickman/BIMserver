@@ -19,15 +19,11 @@ package org.bimserver.changes;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.bimserver.BimserverDatabaseException;
 import org.bimserver.database.BimserverLockConflictException;
-import org.bimserver.database.queries.QueryObjectProvider;
-import org.bimserver.database.queries.om.Query;
 import org.bimserver.database.queries.om.QueryException;
-import org.bimserver.database.queries.om.QueryPart;
 import org.bimserver.emf.PackageMetaData;
 import org.bimserver.shared.HashMapVirtualObject;
 import org.bimserver.shared.exceptions.UserException;
@@ -50,15 +46,7 @@ public class RemoveAllReferencesChange implements Change {
 			BimserverDatabaseException, IOException, QueryException {
 		PackageMetaData packageMetaData = transaction.getDatabaseSession().getMetaDataManager().getPackageMetaData(transaction.getProject().getSchema());
 
-		HashMapVirtualObject object = transaction.get(oid);
-		if (object == null) {
-			Query query = new Query(packageMetaData);
-			QueryPart queryPart = query.createQueryPart();
-			queryPart.addOid(oid);
-
-			QueryObjectProvider queryObjectProvider = new QueryObjectProvider(transaction.getDatabaseSession(), transaction.getBimServer(), query, Collections.singleton(transaction.getPreviousRevision().getOid()), packageMetaData);
-			object = queryObjectProvider.next();
-		}
+		HashMapVirtualObject object = ChangeHelper.getObject(transaction, packageMetaData, oid);
 		
 		EClass eClass = transaction.getDatabaseSession().getEClassForOid(oid);
 		if (!ChangeHelper.canBeChanged(eClass)) {
@@ -83,26 +71,8 @@ public class RemoveAllReferencesChange implements Change {
 		transaction.updated(object);
 
 		// fix inverses, e.g. IfcRelDefinesByProperties.RelatedObjects SET [1:?], inverse IfcObject.IsDefinedBy SET [0:?]
-		for(long referencedOid : referencedOids){
-			EClass eClassForOid = transaction.getDatabaseSession().getEClassForOid(referencedOid);
-			EReference inverseOrOpposite = packageMetaData.getInverseOrOpposite(eClassForOid, eReference);
-			if (inverseOrOpposite != null) {
-				HashMapVirtualObject referencedObject = transaction.get(referencedOid); // we don't get the deleted
-				if (referencedObject == null) {
-					Query query = new Query(packageMetaData);
-					QueryPart queryPart = query.createQueryPart();
-					queryPart.addOid(referencedOid);
-
-					QueryObjectProvider queryObjectProvider = new QueryObjectProvider(transaction.getDatabaseSession(), transaction.getBimServer(), query, Collections.singleton(transaction.getPreviousRevision().getOid()), packageMetaData);
-					referencedObject = queryObjectProvider.next();
-				}
-				if (inverseOrOpposite.isMany()) {
-					referencedObject.removeReference(inverseOrOpposite, referencedOid);
-				} else {
-					referencedObject.eUnset(inverseOrOpposite);
-				}
-				transaction.updated(referencedObject);
-			}
+		for (long referencedOid : referencedOids) {
+			ChangeHelper.removeOpposite(transaction, packageMetaData, eReference, referencedOid, oid);
 		}
 	}
 }

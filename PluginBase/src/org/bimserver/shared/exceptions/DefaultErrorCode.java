@@ -6,7 +6,8 @@ import java.util.Map;
 public enum DefaultErrorCode implements ErrorCode {
 	ENDPOINT_NOT_FOUND(1),
 	HTTP_CONNECTION_REFUSED(2), 
-	INVALID_TOKEN(3);
+	INVALID_TOKEN(3),
+	SET_REFERENCE_FAILED_OPPOSITE_ALREADY_SET(4);
 	
 	private static final Map<Integer, DefaultErrorCode> MAP = new HashMap<>();
 

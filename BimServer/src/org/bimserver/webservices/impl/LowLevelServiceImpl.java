@@ -107,18 +107,13 @@ public class LowLevelServiceImpl extends GenericServiceImpl implements LowLevelI
 				throw new UserException("No transaction with tid " + tid + " was found");
 			}
 			CommitTransactionDatabaseAction action = new CommitTransactionDatabaseAction(getBimServer(), session, getInternalAccessMethod(), getAuthorization(), longTransaction, comment, regenerateAllGeometry);
-			try {
-				session.executeAndCommitAction(action);
-				return action.getRevision().getOid();
-			} catch (BimserverDatabaseException e) {
-				LOGGER.error("", e);
-			} finally {
-				session.close();
-			}
-		} catch (NoTransactionException e) {
-			LOGGER.error("", e);
+			session.executeAndCommitAction(action);
+			return action.getRevision().getOid();
+		} catch (Exception e) {
+			return handleException(e);
+		} finally {
+			session.close();
 		}
-		return -1L;
 	}
 
 	@Override
