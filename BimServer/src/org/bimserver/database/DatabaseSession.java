@@ -2419,11 +2419,11 @@ public class DatabaseSession implements LazyLoader, OidProvider, DatabaseInterfa
 
 	public void addStartOid(EClass eClass, long oid) {
 		String fullname = eClass.getEPackage().getName() + "." + eClass.getName();
+		// Start oids are exclusive (queries begin just after them), so store the oid one step below the lowest one
+		long start = oid - 65536;
 		Long currentStart = startOids.get(fullname);
-		if (currentStart == null) {
-			 startOids.put(fullname, oid - 65536);
-		} else if (oid < currentStart) {
-			startOids.put(fullname, oid);
+		if (currentStart == null || start < currentStart) {
+			startOids.put(fullname, start);
 		}
 	}
 	
