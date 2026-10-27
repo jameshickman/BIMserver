@@ -10,6 +10,7 @@ import org.bimserver.shared.UsernamePasswordAuthenticationInfo;
 import org.bimserver.shared.exceptions.ServiceException;
 import org.bimserver.tests.TestWithEmbeddedServer;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 
 import java.net.MalformedURLException;
@@ -72,6 +73,8 @@ public class TestIfc4x3 extends TestWithEmbeddedServer {
         for(String testFile: testFiles) {
             SProject newProject = bimServerClient.getServiceInterface().addProject(testFile.substring(testFile.lastIndexOf("/")+1), "ifc4x3");
             SDeserializerPluginConfiguration deserializer = bimServerClient.getServiceInterface().getSuggestedDeserializerForExtension("ifc", newProject.getOid());
+            // Released IfcPlugins (0.0.106) predate IFC4X3; run with -Dplugins pointing at a newer build
+            Assumptions.assumeTrue(deserializer != null, "No IFC4X3 deserializer installed");
             SLongActionState longActionState = bimServerClient.checkinSync(newProject.getOid(), "test", deserializer.getOid(), false, new URI(testFileLocation + testFile).toURL());
             Assertions.assertEquals(SActionState.FINISHED, longActionState.getState());
             Assertions.assertEquals(0, longActionState.getErrors().size());

@@ -20,22 +20,43 @@ package org.bimserver.tests.serviceinterface;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Paths;
+import java.util.List;
 
 import org.bimserver.interfaces.objects.SCompareType;
 import org.bimserver.interfaces.objects.SDeserializerPluginConfiguration;
 import org.bimserver.interfaces.objects.SModelComparePluginConfiguration;
+import org.bimserver.interfaces.objects.SModelMergerPluginConfiguration;
 import org.bimserver.interfaces.objects.SProject;
 import org.bimserver.interfaces.objects.SSerializerPluginConfiguration;
 import org.bimserver.plugins.services.BimServerClientInterface;
 import org.bimserver.shared.ChannelConnectionException;
 import org.bimserver.shared.UsernamePasswordAuthenticationInfo;
 import org.bimserver.shared.exceptions.ServiceException;
+import org.bimserver.shared.interfaces.PluginInterface;
 import org.bimserver.tests.TestWithEmbeddedServer;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 // TODO these tests could go to the merger plugin repository, and then merger installation in AllTests can be removed
 // although general merge functionality should be tested here indeed
 public class TestCompare extends TestWithEmbeddedServer {
+
+	/**
+	 * Downloading compare results merges the two revisions, which needs a default model merger. Installing the
+	 * mergers bundle does not choose one, so do what an administrator would.
+	 */
+	@BeforeEach
+	public void configureDefaultModelMerger() throws Exception {
+		try (BimServerClientInterface client = getFactory().create(new UsernamePasswordAuthenticationInfo("admin@bimserver.org", "admin"))) {
+			PluginInterface pluginInterface = client.getPluginInterface();
+			if (pluginInterface.getDefaultModelMerger() == null) {
+				List<SModelMergerPluginConfiguration> mergers = pluginInterface.getAllModelMergers(true);
+				Assertions.assertFalse(mergers.isEmpty(), "No model mergers installed");
+				pluginInterface.setDefaultModelMerger(mergers.get(0).getOid());
+			}
+		}
+	}
 
 	@Test
 	public void testIfc2x3tc1Guid() throws ServiceException, ChannelConnectionException, IOException {
@@ -62,7 +83,7 @@ public class TestCompare extends TestWithEmbeddedServer {
 		bimServerClient.getServiceInterface().compare(newProject1.getLastRevisionId(), newProject2.getLastRevisionId(), SCompareType.ALL, defaultModelCompare.getOid());
 		Long topicId = bimServerClient.getServiceInterface().downloadCompareResults(serializer.getOid(), newProject1.getLastRevisionId(), newProject2.getLastRevisionId(), defaultModelCompare.getOid(), SCompareType.ALL, true);
 
-		bimServerClient.saveDownloadData(topicId, Paths.get("tmptestdata/ifc2x3tc1guidcompare.ifc"));
+		bimServerClient.saveDownloadData(topicId, Paths.get("target/ifc2x3tc1guidcompare.ifc"));
 	}
 	
 	@Test
@@ -89,7 +110,7 @@ public class TestCompare extends TestWithEmbeddedServer {
 
 		bimServerClient.getServiceInterface().compare(newProject1.getLastRevisionId(), newProject2.getLastRevisionId(), SCompareType.ALL, defaultModelCompare.getOid());
 		Long topicId = bimServerClient.getServiceInterface().downloadCompareResults(serializer.getOid(), newProject1.getLastRevisionId(), newProject2.getLastRevisionId(), defaultModelCompare.getOid(), SCompareType.ALL, true);
-		bimServerClient.saveDownloadData(topicId, Paths.get("tmptestdata/ifc2x3tc1namecompare.ifc"));
+		bimServerClient.saveDownloadData(topicId, Paths.get("target/ifc2x3tc1namecompare.ifc"));
 	}
 
 	@Test
@@ -116,7 +137,7 @@ public class TestCompare extends TestWithEmbeddedServer {
 
 		bimServerClient.getServiceInterface().compare(newProject1.getLastRevisionId(), newProject2.getLastRevisionId(), SCompareType.ALL, defaultModelCompare.getOid());
 		long topicId = bimServerClient.getServiceInterface().downloadCompareResults(serializer.getOid(), newProject1.getLastRevisionId(), newProject2.getLastRevisionId(), defaultModelCompare.getOid(), SCompareType.ALL, true);
-		bimServerClient.saveDownloadData(topicId, Paths.get("tmptestdata/ifc4guidcompare.ifc"));
+		bimServerClient.saveDownloadData(topicId, Paths.get("target/ifc4guidcompare.ifc"));
 	}
 
 	@Test
@@ -143,6 +164,6 @@ public class TestCompare extends TestWithEmbeddedServer {
 
 		bimServerClient.getServiceInterface().compare(newProject1.getLastRevisionId(), newProject2.getLastRevisionId(), SCompareType.ALL, defaultModelCompare.getOid());
 		long topicId = bimServerClient.getServiceInterface().downloadCompareResults(serializer.getOid(), newProject1.getLastRevisionId(), newProject2.getLastRevisionId(), defaultModelCompare.getOid(), SCompareType.ALL, true);
-		bimServerClient.saveDownloadData(topicId, Paths.get("tmptestdata/ifc4namecompare.ifc"));
+		bimServerClient.saveDownloadData(topicId, Paths.get("target/ifc4namecompare.ifc"));
 	}
 }

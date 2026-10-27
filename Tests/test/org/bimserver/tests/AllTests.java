@@ -45,6 +45,8 @@ import org.slf4j.LoggerFactory;
 @Suite
 @SelectPackages("org.bimserver.tests")
 @ExcludeClassNamePatterns("org.bimserver.tests.AllTests")
+// Needs a server started separately on localhost:8080
+@ExcludeTags("live-server")
 public class AllTests {
 	public static final int PORT = Integer.getInteger("bimserver.test.port", 7010);
 	public static final String BASE_ADDRESS = "http://localhost:" + PORT;

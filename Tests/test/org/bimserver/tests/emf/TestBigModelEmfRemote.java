@@ -49,11 +49,14 @@ import org.bimserver.shared.UsernamePasswordAuthenticationInfo;
 import org.bimserver.shared.exceptions.BimServerClientException;
 import org.bimserver.shared.exceptions.ServiceException;
 import org.bimserver.utils.RichIfcModel;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.Parameter;
 import org.junit.jupiter.params.ParameterizedClass;
 import org.junit.jupiter.params.provider.ValueSource;
 
+// Stress test against a separately started server on localhost:8080
+@Tag("live-server")
 @ParameterizedClass
 @ValueSource(booleans = {false, true})
 public class TestBigModelEmfRemote {

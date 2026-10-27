@@ -18,8 +18,11 @@ package org.bimserver.tests;
  *****************************************************************************/
 
 import org.bimserver.BimServer;
+import org.bimserver.plugins.services.BimServerClientInterface;
 import org.bimserver.shared.BimServerClientFactory;
+import org.bimserver.shared.UsernamePasswordAuthenticationInfo;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 
 public class TestWithEmbeddedServer {
@@ -36,6 +39,16 @@ public class TestWithEmbeddedServer {
 		return AllTests.getFactory();
 	}
 	
+	/**
+	 * The suite shares one server, so undo server-wide settings that individual tests change.
+	 */
+	@AfterEach
+	public void restoreServerSettings() throws Exception {
+		try (BimServerClientInterface client = getFactory().create(new UsernamePasswordAuthenticationInfo("admin@bimserver.org", "admin"))) {
+			client.getSettingsInterface().setGenerateGeometryOnCheckin(true);
+		}
+	}
+
 	@AfterAll
 	public static void afterAll() {
 		if (!AllTests.running) {

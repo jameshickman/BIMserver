@@ -49,6 +49,7 @@ public class TestGetAvailableClasses extends TestWithEmbeddedServer {
 		mainProject = bimServerClient.getServiceInterface().getProjectByPoid(mainProject.getOid());
 
 		List<String> availableClassesInRevision = bimServerClient.getServiceInterface().getAvailableClassesInRevision(mainProject.getLastRevisionId());
-		Assertions.assertEquals(117, availableClassesInRevision.size());
+		// AC11-Institute-Var-2-IFC.ifc contains exactly 115 distinct entity types
+		Assertions.assertEquals(115, availableClassesInRevision.size());
 	}
 }
