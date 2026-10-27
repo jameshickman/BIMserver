@@ -382,7 +382,8 @@ public class HashMapVirtualObject extends AbstractHashMapVirtualObject implement
 						if (feature.getEAnnotation("twodimensionalarray") != null) {
 							writeEmbeddedList(listObject, "List", (EClass) feature.getEType(), buffer, packageMetaData);
 						} else if (listObject.eClass().getEAnnotation("wrapped") != null || listObject.eClass().getEStructuralFeature("wrappedValue") != null) {
-							if (feature.isMany()) {
+							EStructuralFeature wrappedValueFeature = listObject.eClass().getEStructuralFeature("wrappedValue");
+							if (wrappedValueFeature != null && wrappedValueFeature.isMany()) {
 								writeEmbeddedList(listObject, "wrappedValue", listObject.eClass(), buffer, packageMetaData);
 							} else {
 								writeWrappedValue(getPid(), getRid(), listObject, buffer, packageMetaData);
