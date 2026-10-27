@@ -57,6 +57,9 @@ public class GetProjectByUuidDatabaseAction extends BimDatabaseAction<Project> {
 			throw new UserException("Invalid uuid format");
 		}
 		User user = getUserByUoid(authorization.getUoid());
+		if (user == null) {
+			throw new UserException("Authenticated user required");
+		}
 		Not notStoreProject = new Not(new AttributeCondition(StorePackage.eINSTANCE.getProject_Name(), new StringLiteral(Database.STORE_PROJECT_NAME)));
 		Condition condition = new IsOfTypeCondition(StorePackage.eINSTANCE.getProject()).and(notStoreProject);
 		Map<UUID, Project> results = getDatabaseSession().queryUuid(condition, Project.class, OldQuery.getDefault());
