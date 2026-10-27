@@ -24,7 +24,8 @@ import org.bimserver.interfaces.objects.SProject;
 import org.bimserver.interfaces.objects.SSerializerPluginConfiguration;
 import org.bimserver.models.geometry.GeometryPackage;
 import org.bimserver.shared.UsernamePasswordAuthenticationInfo;
-import org.junit.Test;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +33,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+@Tag("live-server")
 public class TestCheckinAndGeometryDownload {
 	private static final Logger LOGGER = LoggerFactory.getLogger(TestCheckinAndGeometryDownload.class);
 	private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();

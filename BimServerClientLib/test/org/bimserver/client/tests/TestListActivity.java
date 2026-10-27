@@ -12,8 +12,10 @@ import org.bimserver.interfaces.objects.SProject;
 import org.bimserver.interfaces.objects.SRevision;
 import org.bimserver.interfaces.objects.SServerInfo;
 import org.bimserver.shared.UsernamePasswordAuthenticationInfo;
-import org.junit.Test;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
+@Tag("live-server")
 public class TestListActivity {
 	@Test
 	public void test() throws Exception {

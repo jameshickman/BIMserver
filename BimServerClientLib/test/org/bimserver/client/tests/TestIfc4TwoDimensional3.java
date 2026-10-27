@@ -17,11 +17,13 @@ import org.bimserver.models.ifc4.IfcLineIndex;
 import org.bimserver.models.ifc4.IfcSegmentIndexSelect;
 import org.bimserver.shared.UsernamePasswordAuthenticationInfo;
 import org.eclipse.emf.common.util.EList;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.base.Joiner;
 
+@Tag("live-server")
 public class TestIfc4TwoDimensional3 {
 	@Test
 	public void test() throws Exception {
@@ -36,15 +38,15 @@ public class TestIfc4TwoDimensional3 {
 				ClientIfcModel model = client.getModel(project, actionState.getRoid(), true, false);
 
 				List<IfcIndexedPolyCurve> polyCurves = model.getAll(IfcIndexedPolyCurve.class);
-				Assert.assertEquals(1, polyCurves.size());
+				Assertions.assertEquals(1, polyCurves.size());
 				for (IfcIndexedPolyCurve ifcIndexedPolyCurve : polyCurves) {
 					EList<IfcSegmentIndexSelect> segments = ifcIndexedPolyCurve.getSegments();
-					Assert.assertEquals(4, segments.size());
+					Assertions.assertEquals(4, segments.size());
 					for (IfcSegmentIndexSelect ifcSegmentIndexSelect : segments) {
 						if (ifcSegmentIndexSelect instanceof IfcLineIndex) {
-							Assert.assertEquals(2, ((IfcLineIndex)ifcSegmentIndexSelect).getWrappedValue().size());
+							Assertions.assertEquals(2, ((IfcLineIndex)ifcSegmentIndexSelect).getWrappedValue().size());
 						} else if (ifcSegmentIndexSelect instanceof IfcArcIndex){
-							Assert.assertEquals(3, ((IfcArcIndex) ifcSegmentIndexSelect).getWrappedValue().size());
+							Assertions.assertEquals(3, ((IfcArcIndex) ifcSegmentIndexSelect).getWrappedValue().size());
 						}
 					}
 				}

@@ -20,8 +20,10 @@ import org.bimserver.models.geometry.GeometryData;
 import org.bimserver.models.geometry.GeometryInfo;
 import org.bimserver.models.ifc2x3tc1.IfcWall;
 import org.bimserver.shared.UsernamePasswordAuthenticationInfo;
-import org.junit.Test;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
+@Tag("live-server")
 public class TestGetGeometry {
 	@Test
 	public void test() throws Exception {

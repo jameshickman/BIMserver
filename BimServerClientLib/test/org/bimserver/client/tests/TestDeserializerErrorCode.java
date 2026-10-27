@@ -12,9 +12,11 @@ import org.bimserver.plugins.deserializers.DeserializerErrorCode;
 import org.bimserver.shared.UsernamePasswordAuthenticationInfo;
 import org.bimserver.shared.exceptions.UserException;
 import org.bimserver.utils.ByteUtils;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
+@Tag("live-server")
 public class TestDeserializerErrorCode {
 	@Test
 	public void test() throws Exception {
@@ -27,9 +29,9 @@ public class TestDeserializerErrorCode {
 					client.getServiceInterface().determineIfcVersion(initialBytes, false);
 				}
 			}
-			Assert.fail("Expected UserException to be thrown");
+			Assertions.fail("Expected UserException to be thrown");
 		} catch (UserException e1) {
-			Assert.assertEquals(DeserializerErrorCode.UNSUPPORTED_IFC_SCHEMA_VERSION, e1.getErrorCode());
+			Assertions.assertEquals(DeserializerErrorCode.UNSUPPORTED_IFC_SCHEMA_VERSION, e1.getErrorCode());
     	}
 	}
 }

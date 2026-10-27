@@ -15,8 +15,10 @@ import org.bimserver.shared.exceptions.BimServerClientException;
 import org.bimserver.shared.exceptions.DefaultErrorCode;
 import org.bimserver.shared.exceptions.ServerException;
 import org.bimserver.shared.exceptions.UserException;
-import org.junit.Test;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
+@Tag("live-server")
 public class TestServerRestart {
 	// @Test // This test requires user interaction, should be moved to non/semiautomated tests in Test module
 	public void test() {

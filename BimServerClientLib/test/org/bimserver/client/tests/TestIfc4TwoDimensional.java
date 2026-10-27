@@ -15,9 +15,11 @@ import org.bimserver.models.ifc4.IfcColourRgbList;
 import org.bimserver.models.ifc4.IfcNormalisedRatioMeasure;
 import org.bimserver.models.ifc4.ListOfIfcNormalisedRatioMeasure;
 import org.bimserver.shared.UsernamePasswordAuthenticationInfo;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
+@Tag("live-server")
 public class TestIfc4TwoDimensional {
 	@Test
 	public void test() throws Exception {
@@ -31,13 +33,13 @@ public class TestIfc4TwoDimensional {
 				);
 				ClientIfcModel model = client.getModel(project, actionState.getRoid(), true, false);
 				List<IfcColourRgbList> colourRgbLists = model.getAll(IfcColourRgbList.class);
-				Assert.assertFalse(colourRgbLists.isEmpty());
+				Assertions.assertFalse(colourRgbLists.isEmpty());
 				for (IfcColourRgbList colourRgbList : colourRgbLists) {
-				    Assert.assertEquals(3, colourRgbList.getColourList().size());
+				    Assertions.assertEquals(3, colourRgbList.getColourList().size());
 					for (ListOfIfcNormalisedRatioMeasure rgbValues : colourRgbList.getColourList()) {
-						Assert.assertEquals(3, rgbValues.getList().size());
+						Assertions.assertEquals(3, rgbValues.getList().size());
 						for (IfcNormalisedRatioMeasure ifcNormalisedRatioMeasure : rgbValues.getList()) {
-						    Assert.assertNotNull(ifcNormalisedRatioMeasure);
+						    Assertions.assertNotNull(ifcNormalisedRatioMeasure);
 						}
 					}
 				}

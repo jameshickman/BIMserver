@@ -13,9 +13,11 @@ import org.bimserver.plugins.deserializers.DeserializerErrorCode;
 import org.bimserver.plugins.services.CheckinProgressHandler;
 import org.bimserver.shared.UsernamePasswordAuthenticationInfo;
 import org.bimserver.shared.exceptions.ErrorCode;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
+@Tag("live-server")
 public class TestDeserializerErrorCode2 {
 	@Test
 	public void test() throws Exception {
@@ -30,7 +32,7 @@ public class TestDeserializerErrorCode2 {
 						System.out.println(title + ": " + progress);
 					}
 				});
-				Assert.assertEquals(DeserializerErrorCode.IFC_SCHEMA_NOT_SUPPORTED_BY_DESERIALIZER, ErrorCode.fromCode(checkinSync.getDeserializeErrorCode()));
+				Assertions.assertEquals(DeserializerErrorCode.IFC_SCHEMA_NOT_SUPPORTED_BY_DESERIALIZER, ErrorCode.fromCode(checkinSync.getDeserializeErrorCode()));
 			}
 		}
 	}

@@ -15,8 +15,10 @@ import org.bimserver.models.ifc2x3tc1.IfcProject;
 import org.bimserver.plugins.services.CheckinProgressHandler;
 import org.bimserver.shared.UsernamePasswordAuthenticationInfo;
 import org.bimserver.utils.IfcUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
+@Tag("live-server")
 public class TestGetUuid {
 	@Test
 	public void test() throws Exception {

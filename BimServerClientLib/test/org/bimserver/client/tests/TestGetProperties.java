@@ -11,12 +11,14 @@ import org.bimserver.models.ifc2x3tc1.IfcWall;
 import org.bimserver.plugins.services.CheckinProgressHandler;
 import org.bimserver.shared.UsernamePasswordAuthenticationInfo;
 import org.bimserver.utils.IfcUtils;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+@Tag("live-server")
 public class TestGetProperties {
 	@Test
 	public void test() throws Exception {
@@ -34,8 +36,8 @@ public class TestGetProperties {
 				ClientIfcModel model = client.getModel(project, actionState.getRoid(), false, false);
 				for (IfcWall wall : model.getAllWithSubTypes(IfcWall.class)) {
 					String layerName = IfcUtils.getStringProperty(wall, "Layername");
-					Assert.assertNotNull(layerName);
-					Assert.assertFalse(layerName.isEmpty());
+					Assertions.assertNotNull(layerName);
+					Assertions.assertFalse(layerName.isEmpty());
 				}
 			}
 		}

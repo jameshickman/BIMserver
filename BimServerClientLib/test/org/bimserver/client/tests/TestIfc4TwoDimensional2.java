@@ -12,13 +12,15 @@ import org.bimserver.models.ifc4.IfcBSplineSurfaceWithKnots;
 import org.bimserver.models.ifc4.IfcCartesianPoint;
 import org.bimserver.models.ifc4.ListOfIfcCartesianPoint;
 import org.bimserver.shared.UsernamePasswordAuthenticationInfo;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
+@Tag("live-server")
 public class TestIfc4TwoDimensional2 {
 	@Test
 	public void test() throws Exception {
@@ -32,23 +34,23 @@ public class TestIfc4TwoDimensional2 {
 				);
 				ClientIfcModel model = client.getModel(project, actionState.getRoid(), true, false);
 				List<IfcBSplineCurveWithKnots> bSplineCurves = model.getAll(IfcBSplineCurveWithKnots.class);
-				Assert.assertEquals(4, bSplineCurves.size());
+				Assertions.assertEquals(4, bSplineCurves.size());
 				for (IfcBSplineCurveWithKnots bSplineCurve : bSplineCurves) {
-					Assert.assertEquals(7, bSplineCurve.getControlPointsList().size());
+					Assertions.assertEquals(7, bSplineCurve.getControlPointsList().size());
 					for (org.bimserver.models.ifc4.IfcCartesianPoint point : bSplineCurve.getControlPointsList()) {
-						Assert.assertNotNull(point);
-						Assert.assertTrue(point.getCoordinates().size()==2 || point.getCoordinates().size()==3);
+						Assertions.assertNotNull(point);
+						Assertions.assertTrue(point.getCoordinates().size()==2 || point.getCoordinates().size()==3);
 					}
 				}
 				List<IfcBSplineSurfaceWithKnots> bSplineSurfaces = model.getAll(IfcBSplineSurfaceWithKnots.class);
-				Assert.assertEquals(2, bSplineSurfaces.size());
+				Assertions.assertEquals(2, bSplineSurfaces.size());
 				for (IfcBSplineSurfaceWithKnots bSplineSurface: bSplineSurfaces){
-					Assert.assertEquals(4, bSplineSurface.getControlPointsList().size());
+					Assertions.assertEquals(4, bSplineSurface.getControlPointsList().size());
 					for(ListOfIfcCartesianPoint pointList: bSplineSurface.getControlPointsList()){
-						Assert.assertEquals(7, pointList.getList().size());
+						Assertions.assertEquals(7, pointList.getList().size());
 						for(IfcCartesianPoint point: pointList.getList()){
-							Assert.assertNotNull(point);
-							Assert.assertEquals(3, point.getCoordinates().size());
+							Assertions.assertNotNull(point);
+							Assertions.assertEquals(3, point.getCoordinates().size());
 						}
 					}
 				}

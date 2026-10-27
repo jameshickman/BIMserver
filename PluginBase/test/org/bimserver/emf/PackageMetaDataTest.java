@@ -7,15 +7,19 @@ import org.bimserver.models.ifc4x3.Ifc4x3Package;
 import org.eclipse.emf.ecore.EReference;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
-import java.nio.file.Paths;
+import java.nio.file.Path;
 
 
 class PackageMetaDataTest {
 
+    @TempDir
+    Path tempDir;
+
     @Test
     void testInverseIfc2x3() {
-        PackageMetaData packageMetaData = new PackageMetaData(Schema.IFC2X3TC1.getEPackage(), Schema.IFC2X3TC1, Paths.get("tmp"));
+        PackageMetaData packageMetaData = new PackageMetaData(Schema.IFC2X3TC1.getEPackage(), Schema.IFC2X3TC1, tempDir);
         Ifc2x3tc1Package ifc2x3 = Ifc2x3tc1Package.eINSTANCE;
 
         // asymmetric inverse
@@ -55,7 +59,7 @@ class PackageMetaDataTest {
 
     @Test
     void testInverseIfc4() {
-        PackageMetaData packageMetaData = new PackageMetaData(Schema.IFC4.getEPackage(), Schema.IFC4, Paths.get("tmp"));
+        PackageMetaData packageMetaData = new PackageMetaData(Schema.IFC4.getEPackage(), Schema.IFC4, tempDir);
         Ifc4Package ifc4 = Ifc4Package.eINSTANCE;
 
         EReference externalReferenceRelationship_relatedResourceObjects = ifc4.getIfcExternalReferenceRelationship_RelatedResourceObjects();
@@ -75,7 +79,7 @@ class PackageMetaDataTest {
 
     @Test
     void testInverseIfc4x3() {
-        PackageMetaData packageMetaData = new PackageMetaData(Schema.IFC4X3.getEPackage(), Schema.IFC4X3, Paths.get("tmp"));
+        PackageMetaData packageMetaData = new PackageMetaData(Schema.IFC4X3.getEPackage(), Schema.IFC4X3, tempDir);
         Ifc4x3Package ifc4x3 = Ifc4x3Package.eINSTANCE;
 
         EReference externalReferenceRelationship_relatedResourceObjects = ifc4x3.getIfcExternalReferenceRelationship_RelatedResourceObjects();
@@ -95,7 +99,7 @@ class PackageMetaDataTest {
 
     @Test
     void testNoInverse(){
-        PackageMetaData packageMetaData = new PackageMetaData(Schema.IFC2X3TC1.getEPackage(), Schema.IFC2X3TC1, Paths.get("tmp"));
+        PackageMetaData packageMetaData = new PackageMetaData(Schema.IFC2X3TC1.getEPackage(), Schema.IFC2X3TC1, tempDir);
         GeometryPackage geometry = GeometryPackage.eINSTANCE;
         EReference fwd = geometry.getGeometryInfo_Data();
         Assertions.assertNull(packageMetaData.getInverseOrOpposite(geometry.getGeometryData(), fwd));
