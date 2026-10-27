@@ -42,7 +42,7 @@ public class WebModuleManager {
 		DatabaseSession session = bimServer.getDatabase().createSession(OperationType.POSSIBLY_WRITE);
 		try {
 			final WebModulePluginConfiguration defaultWebModule = session.get(StorePackage.eINSTANCE.getWebModulePluginConfiguration(), oid, OldQuery.getDefault());
-			bimServer.setDefaultWebModule((WebModulePlugin) bimServer.getPluginManager().getPlugin(defaultWebModule.getPluginDescriptor().getPluginClassName(), true));
+			bimServer.setDefaultWebModule(findWebModule(defaultWebModule.getPluginDescriptor().getPluginClassName()));
 			SetServerSettingDatabaseAction action = new SetServerSettingDatabaseAction(bimServer, session, AccessMethod.INTERNAL, new ServerSettingsSetter(){
 				@Override
 				public void set(ServerSettings serverSettings) {
@@ -53,5 +53,17 @@ public class WebModuleManager {
 			session.close();
 		}
 
+	}
+
+	/**
+	 * The instance that was initialized and registered when the plugin was loaded; a fresh instance from the plugin manager cannot serve any files.
+	 */
+	private WebModulePlugin findWebModule(String pluginClassName) {
+		for (WebModulePlugin webModulePlugin : bimServer.getWebModules().values()) {
+			if (webModulePlugin.getClass().getName().equals(pluginClassName)) {
+				return webModulePlugin;
+			}
+		}
+		return (WebModulePlugin) bimServer.getPluginManager().getPlugin(pluginClassName, true);
 	}
 }

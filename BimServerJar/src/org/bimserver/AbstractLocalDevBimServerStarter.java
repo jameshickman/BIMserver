@@ -103,6 +103,7 @@ public class AbstractLocalDevBimServerStarter {
 				LOGGER.info("Loading plugins...");
 				LocalDevPluginLoader.loadPlugins(bimServer.getPluginBundleManager(), pluginDirectories);
 				bimServer.activateServices();
+				afterStart(bimServer);
 				long end = System.nanoTime();
 				LOGGER.info("All plugins loaded (" + ((end - start) / 1000000) + " ms)");
 			} else if (bimServer.getServerInfo().getServerState() == ServerState.NOT_SETUP) {
@@ -131,6 +132,12 @@ public class AbstractLocalDevBimServerStarter {
 	 * Called on a server that has not been set up yet. The default creates admin@bimserver.org / admin, which is only
 	 * suitable for a server that cannot be reached from elsewhere.
 	 */
+	/**
+	 * Called once an already set up server is running.
+	 */
+	protected void afterStart(BimServer bimServer) {
+	}
+
 	protected void autoSetup(BimServer bimServer, int port, String name) {
 		try {
 			AdminInterface adminInterface = bimServer.getServiceFactory().get(new SystemAuthorization(1, TimeUnit.HOURS), AccessMethod.INTERNAL).get(AdminInterface.class);

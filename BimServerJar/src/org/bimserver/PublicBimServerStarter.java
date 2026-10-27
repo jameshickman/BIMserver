@@ -21,6 +21,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 
+import org.bimserver.interfaces.objects.SWebModulePluginConfiguration;
 import org.bimserver.models.log.AccessMethod;
 import org.bimserver.shared.LocalDevelopmentResourceFetcher;
 import org.bimserver.shared.interfaces.AdminInterface;
@@ -38,7 +39,8 @@ import org.slf4j.LoggerFactory;
 public class PublicBimServerStarter extends AbstractLocalDevBimServerStarter {
 	private static final Logger LOGGER = LoggerFactory.getLogger(PublicBimServerStarter.class);
 	private static final int MIN_PASSWORD_LENGTH = 16;
-	private static final String[] PLUGIN_BUNDLES = { "ifcplugins", "binaryserializers", "ifcopenshellplugin", "mergers" };
+	private static final String[] PLUGIN_BUNDLES = { "ifcplugins", "binaryserializers", "ifcopenshellplugin", "mergers", "bimviews" };
+	private static final String DEFAULT_WEB_MODULE = "BIMvie.ws";
 
 	private final String adminUsername;
 	private final String adminPassword;
@@ -95,10 +97,32 @@ public class PublicBimServerStarter extends AbstractLocalDevBimServerStarter {
 				LOGGER.info("Installing plugin bundle " + bundle);
 				pluginInterface.installPluginBundle("https://repo1.maven.org/maven2/", "org.opensourcebim", bundle, null, null);
 			}
+			setDefaultWebModule(pluginInterface);
 		} catch (Exception e) {
 			// A server left in the "not set up" state lets anyone who reaches it create the admin account
 			LOGGER.error("Setup failed, stopping", e);
 			System.exit(1);
+		}
+	}
+
+	@Override
+	protected void afterStart(BimServer bimServer) {
+		// The saved default web module is not reliably restored when the server starts, so apply it again
+		try {
+			setDefaultWebModule(bimServer.getServiceFactory().get(new SystemAuthorization(1, TimeUnit.HOURS), AccessMethod.INTERNAL).get(PluginInterface.class));
+		} catch (Exception e) {
+			LOGGER.error("Could not set the default web module", e);
+		}
+	}
+
+	/**
+	 * The server's own start page only shows its status; the web app provides the login.
+	 */
+	private static void setDefaultWebModule(PluginInterface pluginInterface) throws Exception {
+		for (SWebModulePluginConfiguration webModule : pluginInterface.listAllWebModules()) {
+			if (webModule.getName().equals(DEFAULT_WEB_MODULE)) {
+				pluginInterface.setDefaultWebModule(webModule.getOid());
+			}
 		}
 	}
 
