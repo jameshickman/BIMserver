@@ -49,6 +49,11 @@ public class EmbeddedWebServer implements EmbeddedWebServerInterface {
 
 		ServerConnector socketConnector = new ServerConnector(server);
 		socketConnector.setPort(bimServer.getConfig().getPort());
+		// Listens on all interfaces unless a host is given, e.g. 127.0.0.1 when only a local tunnel should reach it
+		String host = System.getProperty("bimserver.host");
+		if (host != null && !host.isEmpty()) {
+			socketConnector.setHost(host);
+		}
 		socketConnector.setIdleTimeout(10800000); // 3 hours for bulkcheckin
 		socketConnector.setShutdownIdleTimeout(10800000); // 3 hours for bulkcheckin
 		server.addConnector(socketConnector);

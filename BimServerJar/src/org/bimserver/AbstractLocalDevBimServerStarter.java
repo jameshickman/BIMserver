@@ -108,15 +108,7 @@ public class AbstractLocalDevBimServerStarter {
 			} else if (bimServer.getServerInfo().getServerState() == ServerState.NOT_SETUP) {
 				LocalDevPluginLoader.loadPlugins(bimServer.getPluginBundleManager(), pluginDirectories);
 				if (autoSetup) {
-					try {
-						AdminInterface adminInterface = bimServer.getServiceFactory().get(new SystemAuthorization(1, TimeUnit.HOURS), AccessMethod.INTERNAL).get(AdminInterface.class);
-						adminInterface.setup("http://localhost:" + port, name, "My Description", "http://localhost:" + port + "/img/bimserver.png", "Administrator", "admin@bimserver.org", "admin");
-						SettingsInterface settingsInterface = bimServer.getServiceFactory().get(new SystemAuthorization(1, TimeUnit.HOURS), AccessMethod.INTERNAL).get(SettingsInterface.class);
-						settingsInterface.setCacheOutputFiles(false);
-						settingsInterface.setPluginStrictVersionChecking(false);
-					} catch (Exception e) {
-						// Ignore
-					}
+					autoSetup(bimServer, port, name);
 				}
 				bimServer.activateServices();
 			} else {
@@ -132,6 +124,22 @@ public class AbstractLocalDevBimServerStarter {
 			LOGGER.error("", e);
 		} catch (DatabaseRestartRequiredException e) {
 			LOGGER.error("", e);
+		}
+	}
+
+	/**
+	 * Called on a server that has not been set up yet. The default creates admin@bimserver.org / admin, which is only
+	 * suitable for a server that cannot be reached from elsewhere.
+	 */
+	protected void autoSetup(BimServer bimServer, int port, String name) {
+		try {
+			AdminInterface adminInterface = bimServer.getServiceFactory().get(new SystemAuthorization(1, TimeUnit.HOURS), AccessMethod.INTERNAL).get(AdminInterface.class);
+			adminInterface.setup("http://localhost:" + port, name, "My Description", "http://localhost:" + port + "/img/bimserver.png", "Administrator", "admin@bimserver.org", "admin");
+			SettingsInterface settingsInterface = bimServer.getServiceFactory().get(new SystemAuthorization(1, TimeUnit.HOURS), AccessMethod.INTERNAL).get(SettingsInterface.class);
+			settingsInterface.setCacheOutputFiles(false);
+			settingsInterface.setPluginStrictVersionChecking(false);
+		} catch (Exception e) {
+			// Ignore
 		}
 	}
 
