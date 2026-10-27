@@ -10,6 +10,8 @@
 	<properties>
 		<!-- Port for the embedded server; override with -Dbimserver.test.port=... -->
 		<bimserver.test.port>7010</bimserver.test.port>
+		<!-- Latest release; use -Difcplugins.version=0.0.107-SNAPSHOT with a locally built IfcPlugins -->
+		<ifcplugins.version>0.0.106</ifcplugins.version>
 	</properties>
 	<build>
 		<sourceDirectory>src</sourceDirectory>
@@ -22,6 +24,14 @@
 				</excludes>
 			</resource>
 		</resources>
+		<testResources>
+			<testResource>
+				<directory>test</directory>
+				<excludes>
+					<exclude>**/*.java</exclude>
+				</excludes>
+			</testResource>
+		</testResources>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -83,8 +93,15 @@
 		<dependency>
 			<groupId>org.opensourcebim</groupId>
 			<artifactId>ifcplugins</artifactId>
-			<version>0.0.107-SNAPSHOT</version> <!-- TODO only used in TestBigModelRemote -->
+			<version>${ifcplugins.version}</version> <!-- TODO only used in TestBigModelRemote -->
 			<scope>test</scope>
+			<exclusions>
+				<!-- Use this build's shared/pluginbase, not the release ifcplugins was built against -->
+				<exclusion>
+					<groupId>org.opensourcebim</groupId>
+					<artifactId>shared</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 	</dependencies>
 	<repositories>

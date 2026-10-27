@@ -46,6 +46,9 @@ import org.slf4j.LoggerFactory;
 @SelectPackages("org.bimserver.tests")
 @ExcludeClassNamePatterns("org.bimserver.tests.AllTests")
 public class AllTests {
+	public static final int PORT = Integer.getInteger("bimserver.test.port", 7010);
+	public static final String BASE_ADDRESS = "http://localhost:" + PORT;
+	private static Path home;
 	public static BimServer bimServer;
 	public static boolean running = false;
 
@@ -57,7 +60,7 @@ public class AllTests {
 
 	private static void setup() {
 		// Create a config
-		Path home = Paths.get("tmptestdata/home-" + new Random().nextInt(1000000000));
+		home = Paths.get("target/e2e-home-" + new Random().nextInt(1000000000));
 		
 		// Remove the home dir if it's there
 		if (Files.exists(home)) {
@@ -71,7 +74,7 @@ public class AllTests {
 		BimServerConfig config = new BimServerConfig();
 		config.setHomeDir(home);
 		config.setStartEmbeddedWebServer(true);
-		config.setPort(7010);
+		config.setPort(PORT);
 		config.setResourceFetcher(new LocalDevelopmentResourceFetcher(Paths.get("../")));
 		config.setClassPath(System.getProperty("java.class.path"));
 		
@@ -92,11 +95,11 @@ public class AllTests {
 			BimServerClientInterface client = bimServer.getBimServerClientFactory().create();
 
 			// Setup the server
-			client.getAdminInterface().setup("http://localhost:7010", "Test Name", "Test Description", "noicon", "Administrator", "admin@bimserver.org", "admin");
+			client.getAdminInterface().setup(BASE_ADDRESS, "Test Name", "Test Description", "noicon", "Administrator", "admin@bimserver.org", "admin");
 			ServiceMap serviceMap = bimServer.getServiceFactory().get(new SystemAuthorization(1, TimeUnit.HOURS), AccessMethod.INTERNAL);
 			serviceMap.getSettingsInterface().setCacheOutputFiles(false);
 
-			((DirectBimServerClientFactory)bimServer.getBimServerClientFactory()).setBaseAddress("http://localhost:7010");
+			((DirectBimServerClientFactory)bimServer.getBimServerClientFactory()).setBaseAddress(BASE_ADDRESS);
 
 			client.disconnect();
 
@@ -157,6 +160,9 @@ public class AllTests {
 				}
 				bimServer = null;
 				running = false;
+			}
+			if (home != null && Files.exists(home)) {
+				PathUtils.removeDirectoryWithContent(home);
 			}
 		} catch (Throwable e) {
 			e.printStackTrace();

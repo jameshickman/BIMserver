@@ -4,3 +4,5 @@
 /test1.ifc
 /testX.ifc
 /tmptestdata/
+# Output written by end-to-end tests
+/*.ifc
