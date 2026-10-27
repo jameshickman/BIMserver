@@ -91,7 +91,8 @@ SERVER_PID=$!
 TOKEN=""
 for _ in $(seq 1 300); do
 	kill -0 "$SERVER_PID" 2>/dev/null || { tail -n 20 "$SERVER_LOG" >&2; die "BIMserver exited during startup"; }
-	TOKEN=$(json_call "$(login_request)" 2>/dev/null | json_field)
+	# curl fails until the server accepts connections
+	TOKEN=$(json_call "$(login_request)" 2>/dev/null | json_field) || true
 	[[ -n "$TOKEN" ]] && break
 	sleep 2
 done
